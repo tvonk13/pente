@@ -75,8 +75,8 @@ class Pente extends React.Component {
 
     for(var row=0; row<board.length; row++) {
       for(var col=0; col<board[row].length; col++) {
-        console.log('checkHorizontal for: ', board[row][col]);
-        isWon = this.checkHorizontal(board, row, col);
+        console.log('check for: ', board[row][col]);
+        isWon = this.checkHorizontal(board, row, col) || this.checkVertical(board, row, col);
         if(isWon){
           return true;
         }
@@ -85,21 +85,44 @@ class Pente extends React.Component {
     return false;
   }
 
+  //TODO: fix edge bug
   checkHorizontal(board, row, col) {
-    console.log('Checking horizontal');
     const space = board[row][col];
-    let nextVal = space.value;
     const curVal = space.value;
+    let nextVal = space.value;
     let count = 0;
 
     if(curVal != '') {
-    console.log('space is not empty');
       for(var i=Math.max(col-4, 0); i<=col; i++) {
-        console.log('i: ', i);
+      console.log('i: ', i);
         for(var j=i; j<i+5; j++) {
-          console.log('j: ', j);
+        console.log('j: ', j);
           nextVal = board[row][j].value;
-          console.log('nextVal: ', nextVal);
+          if(nextVal == curVal) {
+            count++;
+          } else {
+            count=0;
+            break;
+          }
+        }
+        if(count == 5) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  checkVertical(board, row, col) {
+    const space = board[row][col];
+    const curVal = space.value;
+    let nextVal = space.value;
+    let count = 0;
+
+    if(curVal != '') {
+      for(var i=Math.max(row-4, 0); i<=row; i++) {
+        for(var j=i; j<i+5; j++) {
+          nextVal = board[j][col].value;
           if(nextVal == curVal) {
             count++;
           } else {
