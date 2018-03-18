@@ -62,7 +62,7 @@ class Pente extends React.Component {
     this.setState({
       board: boardCopy,
       turn: newTurn,
-      isWon: this.checkForWin.bind(this),
+      isWon: false, 
     });
   }
 
@@ -73,7 +73,7 @@ class Pente extends React.Component {
   render() {
     return (
       <div className="container">
-         <RenderBoard board={this.state.board} onClick={this.makeMove.bind(this)}/>
+         <RenderBoardLoop board={this.state.board} onClick={this.makeMove.bind(this)}/>
          <div className="status">
            <div className="turn">
              Current Player: {this.state.turn}
@@ -94,41 +94,16 @@ function RenderButton(params) {
   );
 }
 
-//TODO: make this a loop
-function RenderBoard(params) {
-  return(
-    <div className="grid">
-      <div className="row">
-        {params.board[0].map((space, i) =>
-          <RenderButton key={i} value={space.value} pos={space.pos} onClick={params.onClick} />
-        )}
-      </div>
-      <div className="row">
-        {params.board[1].map((space, i) =>
-          <RenderButton key={i} value={space.value} pos={space.pos} onClick={params.onClick} />
-        )}
-      </div>
-      <div className="row">
-        {params.board[2].map((space, i) =>
-          <RenderButton key={i} value={space.value} pos={space.pos} onClick={params.onClick} />
-        )}
-      </div>
-      <div className="row">
-        {params.board[3].map((space, i) =>
-          <RenderButton key={i} value={space.value} pos={space.pos} onClick={params.onClick} />
-        )}
-      </div>
-      <div className="row">
-        {params.board[4].map((space, i) =>
-          <RenderButton key={i} value={space.value} pos={space.pos} onClick={params.onClick} />
-        )}
-      </div>
-      <div className="row">
-        {params.board[5].map((space, i) =>
-          <RenderButton key={i} value={space.value} pos={space.pos} onClick={params.onClick} />
-        )}
-      </div>
-    </div>
-  );
+function RenderBoardLoop(params) {
+ return (
+   <div className="grid">
+     {params.board.map((row, i) =>
+       <div className="row" key={i}>
+         {row.map((space, j) =>
+           <RenderButton key={j} value={space.value} pos={space.pos} onClick={params.onClick} />
+         )}
+       </div>
+     )}
+   </div>
+ );
 }
-
