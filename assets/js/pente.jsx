@@ -22,7 +22,6 @@ export default function game_init(root) {
   {
     board: Array<Spaces> // a 12x12 2D array of spaces
     turn: String // the player whose turn it is
-    isWon: boolean // whether the game has reached a win condition
   }
 
   A space has:
@@ -43,7 +42,6 @@ class Pente extends React.Component {
     this.state = {
       board: props.board,
       turn: 'R', //TODO: make this randomized
-      isWon: false,
     };
   }
 
@@ -52,22 +50,69 @@ class Pente extends React.Component {
     console.log('Tile clicked: ', params);
     
     let boardCopy = JSON.parse(JSON.stringify(this.state.board));
-    let turnCopy = this.state.turn;
+    let newTurn = this.state.turn;
+    const turnCopy = this.state.turn;
     const x = params.pos.x;
     const y = params.pos.y;
 
-    boardCopy[y][x].value = turnCopy;
-    var newTurn = (turnCopy == 'R') ? 'B' : 'R';
+    if(params.value !== 'R' && params.value !== 'B') {
+      boardCopy[y][x].value = turnCopy;
+      newTurn = (turnCopy == 'R') ? 'B' : 'R';
+    }
 
     this.setState({
       board: boardCopy,
       turn: newTurn,
-      isWon: false, 
     });
+    const won = this.checkForWin();
+    if(won) alert('Game won!');
   }
 
   checkForWin() {
-    return this.state.isWon;
+    console.log('Checking for win');
+    const board = this.state.board;
+    let isWon = false;
+
+    for(var row=0; row<board.length; row++) {
+      for(var col=0; col<board[row].length; col++) {
+        console.log('checkHorizontal for: ', board[row][col]);
+        isWon = this.checkHorizontal(board, row, col);
+        if(isWon){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  checkHorizontal(board, row, col) {
+    console.log('Checking horizontal');
+    const space = board[row][col];
+    let nextVal = space.value;
+    const curVal = space.value;
+    let count = 0;
+
+    if(curVal != '') {
+    console.log('space is not empty');
+      for(var i=Math.max(col-4, 0); i<=col; i++) {
+        console.log('i: ', i);
+        for(var j=i; j<i+5; j++) {
+          console.log('j: ', j);
+          nextVal = board[row][j].value;
+          console.log('nextVal: ', nextVal);
+          if(nextVal == curVal) {
+            count++;
+          } else {
+            count=0;
+            break;
+          }
+        }
+        if(count == 5) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   render() {
@@ -77,9 +122,6 @@ class Pente extends React.Component {
          <div className="status">
            <div className="turn">
              Current Player: {this.state.turn}
-           </div>
-           <div className="isWon">
-             Game over: {this.state.isWon.toString()}
            </div>
          </div>
       </div>
