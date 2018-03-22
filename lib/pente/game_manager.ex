@@ -17,17 +17,17 @@ defmodule Pente.GameManager do
 		# Game exists
 		if game_info do
 			# Waiting for second player
-			if game_info[p2] == nil do
-				info = %{"game" => game_info[game], 
-						"p1" => game_info[p1], 
-						"p2" => p2}
+			if game_info["p2"] == nil do
+				info = %{"game" => game_info["game"], 
+						"p1" => game_info["p1"], 
+						"p2" => socket_id}
 				Agent.update __MODULE__, fn state ->
 					Map.put(state, name, info)
 				end
 			# The game is full
 			else
 				# TODO: Throw some kind of error?
-				return nil
+				nil
 			end
 
 		# Game doesn't exist yet, create it

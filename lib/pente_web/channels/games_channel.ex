@@ -6,13 +6,13 @@ defmodule PenteWeb.GamesChannel do
 
 	# Handle the initial connection by the client (associate name and game with socket)
 	def join("games:" <> name, payload, socket) do
-		if authorized(payload) do
+		if authorized?(payload) do
 			# Join or create a game with the given name
 			game_info = GameManager.joinGame(name, socket.id)
 
 			# TODO: Handle the case when the game is full (game_info == nil?)
 			
-			game = game_info[game]
+			game = game_info["game"]
 
 			socket = socket
 			|> assign(:game, game)
@@ -33,7 +33,7 @@ defmodule PenteWeb.GamesChannel do
 	# - Test 
 
 	# Do any necessary authorization checks for joining
-	def authorized?() do
+	def authorized?(_payload) do
 		true
 	end
 
