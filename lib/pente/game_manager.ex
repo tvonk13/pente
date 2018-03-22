@@ -23,6 +23,7 @@ defmodule Pente.GameManager do
 						"p2" => p2}
 				Agent.update __MODULE__, fn state ->
 					Map.put(state, name, info)
+				end
 			# The game is full
 			else
 				# TODO: Throw some kind of error?
@@ -36,6 +37,8 @@ defmodule Pente.GameManager do
             	info = %{"game" => game, "p1" => socket_id, "p2" => nil}
             	Map.put(state, name, info)
         	end
+		end
+	end
 			
 	# Get a game record by name if it exists
 	def getGame(name) do

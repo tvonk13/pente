@@ -26,5 +26,15 @@ defmodule PenteWeb.GamesChannel do
 
 	# NOTE: Does handle_in take messages from any socket connected to the channel?
 
-	# TODO: All responses back to the client should have some information about whether they
-			are p1 or p2
+	# TODO: All responses back to the client should have some information about whether they are p1 or p2
+
+	# TODO:
+	# - add broadcasts in actions to communicate to other channel topic/subtopic subs
+	# - Test 
+
+	# Do any necessary authorization checks for joining
+	def authorized?() do
+		true
+	end
+
+end

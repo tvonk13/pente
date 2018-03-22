@@ -12,6 +12,7 @@ defmodule Pente.Application do
       supervisor(PenteWeb.Endpoint, []),
       # Start your own worker by calling: Pente.Worker.start_link(arg1, arg2, arg3)
       # worker(Pente.Worker, [arg1, arg2, arg3]),
+      worker(Pente.GameManager, []),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

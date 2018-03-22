@@ -9,13 +9,19 @@ defmodule Pente.Game do
 
 	# Get a new initial state
 	def new do
-
+		[]
 	end
 
 	# Method for player action
 	# EX: def click(game, x, y) ...
 
 	# Restart: Set a new state for the game (reset board and score, etc)
-	# def restartGame(game) do
+	def restartGame(game) do
+		new()
+	end
+
+	def client_view(game) do
+		game
+	end
 
 end

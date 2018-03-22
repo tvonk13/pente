@@ -3,6 +3,7 @@ defmodule PenteWeb.UserSocket do
 
   ## Channels
   # channel "room:*", PenteWeb.RoomChannel
+  channel "games:*", PenteWeb.GamesChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
