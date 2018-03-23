@@ -13,10 +13,10 @@ class Pente extends React.Component {
 		super(props);
 		this.channel = props.channel;
 
-		# TODO: Set initial local state?
+		// TODO: Set initial local state?
 
 		this.channel.join()
-			.receive("ok", this.gotView.bind(this))
+			.receive("ok", this.getView.bind(this))
 			.receive("error", resp => { console.log("Unable to join", resp) });
 	}
 

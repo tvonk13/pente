@@ -8,17 +8,19 @@ defmodule PenteWeb.GamesChannel do
 	def join("games:" <> name, payload, socket) do
 		if authorized?(payload) do
 			# Join or create a game with the given name
-			game_info = GameManager.joinGame(name, socket.id)
+			game_info = Pente.GameManager.joinGame(name, socket.id)
 
-			# TODO: Handle the case when the game is full (game_info == nil?)
-			
-			game = game_info["game"]
+			if game_info != nil do
+				game = game_info["game"]
 
-			socket = socket
-			|> assign(:game, game)
-			|> assign(:name, name)
+				socket = socket
+				|> assign(:game, game)
+				|> assign(:name, name)
 
-			{:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
+				{:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
+			else
+				{:error, %{reason: "unable to join game"}}
+			end
 		else
 			{:error, %{reason: "unauthorized"}}
 		end

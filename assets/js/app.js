@@ -7,7 +7,7 @@ function start() {
 	let root = document.getElementById('root');
 	if (root) {
 		let channel = socket.channel("games:" + window.gameName, {});
-		run_memory(root, channel);
+		run_pente(root, channel);
 	}
 
 	if (document.getElementById('index-page')) {
