@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 
 var w = 6;
-var h = 6;
+var winLength = 5;
+var players = ['R', 'B'];
 var emptyBoard = [];
-for(var i=0; i<h; i++) {
+for(var i=0; i<w; i++) {
   var row = [];
   for(var j=0; j<w; j++) {
     row.push({value: '', pos:{x: j, y: i}});
@@ -36,46 +37,52 @@ export default function game_init(root) {
   Players or player pieces are denoted by 'R' (red) or 'B' (black)
 */
 
-class Pente extends React.Component {
+class Pente extends React.Component {  
   constructor(props) {
     super(props);
     this.state = {
       board: props.board,
-      turn: 'R', //TODO: make this randomized
+      turn: players[Math.floor(Math.random() * players.length)],
     };
   }
 
   makeMove(params) {
     console.log('Current Player: ', this.state.turn);
     console.log('Tile clicked: ', params);
-    
+    const won = this.checkForWin(this.state);
     let boardCopy = JSON.parse(JSON.stringify(this.state.board));
     let newTurn = this.state.turn;
     const turnCopy = this.state.turn;
     const x = params.pos.x;
     const y = params.pos.y;
 
-    if(params.value !== 'R' && params.value !== 'B') {
-      boardCopy[y][x].value = turnCopy;
-      newTurn = (turnCopy == 'R') ? 'B' : 'R';
-    }
+    if(!won) {
+      if(params.value !== 'R' && params.value !== 'B') {
+        boardCopy[y][x].value = turnCopy;
+        newTurn = (turnCopy == 'R') ? 'B' : 'R';
+      }
 
-    this.setState({
-      board: boardCopy,
-      turn: newTurn,
-    });
-    const won = this.checkForWin();
-    if(won) alert('Game won!');
+      this.setState({
+        board: boardCopy,
+        turn: newTurn,
+      });
+    } else {
+      alert('Game won! Winner: ' + turnCopy);
+      this.setState({
+        board: emptyBoard,
+        turn: players[Math.floor(Math.random() * players.length)], 
+      });
+    }
   }
 
-  checkForWin() {
-    console.log('Checking for win');
-    const board = this.state.board;
+  checkForWin(state) {
+    //console.log('Checking for win');
+    const board = state.board;
     let isWon = false;
 
     for(var row=0; row<board.length; row++) {
-      for(var col=0; col<board[row].length; col++) {
-        console.log('check for: ', board[row][col]);
+      for(var col=0; col<board.length; col++) {
+        //console.log('check win for: ', board[row][col]);
         isWon = this.checkHorizontal(board, row, col) || this.checkVertical(board, row, col);
         if(isWon){
           return true;
@@ -85,7 +92,6 @@ class Pente extends React.Component {
     return false;
   }
 
-  //TODO: fix edge bug
   checkHorizontal(board, row, col) {
     const space = board[row][col];
     const curVal = space.value;
@@ -93,19 +99,20 @@ class Pente extends React.Component {
     let count = 0;
 
     if(curVal != '') {
-      for(var i=Math.max(col-4, 0); i<=col; i++) {
-      console.log('i: ', i);
-        for(var j=i; j<i+5; j++) {
-        console.log('j: ', j);
-          nextVal = board[row][j].value;
-          if(nextVal == curVal) {
-            count++;
-          } else {
-            count=0;
-            break;
+      for(var i=Math.max(col-winLength-1, 0); i<=col; i++) {
+        count = 0;
+        for(var j=i; j<Math.min(i+winLength, w); j++) {
+          if(j < w) {
+            nextVal = board[row][j].value;
+            if(nextVal == curVal) {
+              count++;
+            } else {
+              count=0;
+              break;
+            }
           }
         }
-        if(count == 5) {
+        if(count == winLength) {
           return true;
         }
       }
@@ -120,17 +127,20 @@ class Pente extends React.Component {
     let count = 0;
 
     if(curVal != '') {
-      for(var i=Math.max(row-4, 0); i<=row; i++) {
-        for(var j=i; j<i+5; j++) {
-          nextVal = board[j][col].value;
-          if(nextVal == curVal) {
-            count++;
-          } else {
-            count=0;
-            break;
+      for(var i=Math.max(row-winLength-1, 0); i<=row; i++) {
+        count = 0;
+        for(var j=i; j<Math.min(i+winLength, w); j++) {
+          if(j < w) {
+            nextVal = board[j][col].value;
+            if(nextVal == curVal) {
+              count++;
+            } else {
+              count=0;
+              break;
+            }
           }
         }
-        if(count == 5) {
+        if(count == winLength) {
           return true;
         }
       }
