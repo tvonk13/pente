@@ -83,7 +83,7 @@ class Pente extends React.Component {
     for(var row=0; row<board.length; row++) {
       for(var col=0; col<board.length; col++) {
         //console.log('check win for: ', board[row][col]);
-        isWon = this.checkHorizontal(board, row, col) || this.checkVertical(board, row, col);
+        isWon = this.checkVertHoriz(board, row, col, 'h') || this.checkVertHoriz(board, row, col, 'v') || this.checkDiagonal(board, row, col);
         if(isWon){
           return true;
         }
@@ -92,18 +92,19 @@ class Pente extends React.Component {
     return false;
   }
 
-  checkHorizontal(board, row, col) {
+  checkVertHoriz(board, row, col, dir) {
     const space = board[row][col];
     const curVal = space.value;
+    const index = (dir == 'h') ? col : row;
     let nextVal = space.value;
     let count = 0;
 
     if(curVal != '') {
-      for(var i=Math.max(col-winLength-1, 0); i<=col; i++) {
+      for(var i=Math.max(index-winLength-1, 0); i<=index; i++) {
         count = 0;
         for(var j=i; j<Math.min(i+winLength, w); j++) {
           if(j < w) {
-            nextVal = board[row][j].value;
+            nextVal = (dir == 'h') ? board[row][j].value : board[j][col].value;
             if(nextVal == curVal) {
               count++;
             } else {
@@ -120,18 +121,19 @@ class Pente extends React.Component {
     return false;
   }
 
-  checkVertical(board, row, col) {
+  checkDiagonal(board, row, col) {
     const space = board[row][col];
     const curVal = space.value;
     let nextVal = space.value;
     let count = 0;
 
     if(curVal != '') {
-      for(var i=Math.max(row-winLength-1, 0); i<=row; i++) {
+      const diff = Math.min(row, col) - Math.min(Math.max(col-(winLength-1), 0), Math.max(row-(winLength-1), 0));
+      for(var i=diff; i >=0; i--) {
         count = 0;
-        for(var j=i; j<Math.min(i+winLength, w); j++) {
-          if(j < w) {
-            nextVal = board[j][col].value;
+        for(var j=0; j<5; j++) {
+          if(row-i+j < w && col-i+j < w) {
+            nextVal = board[row-i+j][col-i+j].value;
             if(nextVal == curVal) {
               count++;
             } else {
