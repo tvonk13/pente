@@ -2,14 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 
-var w = 6;
-var winLength = 5;
-var players = ['R', 'B'];
+const w = 10;
+const winLength = 5;
+const wL = winLength - 1;
+const players = ['R', 'B'];
 var emptyBoard = [];
 for(var i=0; i<w; i++) {
   var row = [];
   for(var j=0; j<w; j++) {
-    row.push({value: '', pos:{x: j, y: i}});
+    row.push({value: '', pos:{row: i, col: j}});
   }
   emptyBoard.push(row);
 }
@@ -29,8 +30,8 @@ export default function game_init(root) {
   {
     value: String // oneOf: 'R', 'B', ''
     pos: {
-      x: int      // x coordinate
-      y: int      // y coordinate
+      row: int      // row index
+      col: int      // column index
     }
   }
 
@@ -46,6 +47,7 @@ class Pente extends React.Component {
     };
   }
 
+  //TODO: fix bug where win is not checked until next click
   makeMove(params) {
     console.log('Current Player: ', this.state.turn);
     console.log('Tile clicked: ', params);
@@ -53,12 +55,12 @@ class Pente extends React.Component {
     let boardCopy = JSON.parse(JSON.stringify(this.state.board));
     let newTurn = this.state.turn;
     const turnCopy = this.state.turn;
-    const x = params.pos.x;
-    const y = params.pos.y;
+    const row = params.pos.row;
+    const col = params.pos.col;
 
     if(!won) {
       if(params.value !== 'R' && params.value !== 'B') {
-        boardCopy[y][x].value = turnCopy;
+        boardCopy[row][col].value = turnCopy;
         newTurn = (turnCopy == 'R') ? 'B' : 'R';
       }
 
@@ -76,20 +78,22 @@ class Pente extends React.Component {
   }
 
   checkForWin(state) {
-    //console.log('Checking for win');
     const board = state.board;
     let isWon = false;
 
     for(var row=0; row<board.length; row++) {
       for(var col=0; col<board.length; col++) {
-        //console.log('check win for: ', board[row][col]);
-        isWon = this.checkVertHoriz(board, row, col, 'h') || this.checkVertHoriz(board, row, col, 'v') || this.checkDiagonal(board, row, col);
+        isWon = this.isWonWrapper(board, row, col);
         if(isWon){
           return true;
         }
       }
     }
     return false;
+  }
+
+  isWonWrapper(board, row, col) {
+    return this.checkVertHoriz(board, row, col, 'h') || this.checkVertHoriz(board, row, col, 'v') || this.checkDiagonal(board, row, col, 'l') || this.checkDiagonal(board, row, col, 'r');
   }
 
   checkVertHoriz(board, row, col, dir) {
@@ -100,7 +104,7 @@ class Pente extends React.Component {
     let count = 0;
 
     if(curVal != '') {
-      for(var i=Math.max(index-winLength-1, 0); i<=index; i++) {
+      for(var i=Math.max(index-wL, 0); i<=index; i++) {
         count = 0;
         for(var j=i; j<Math.min(i+winLength, w); j++) {
           if(j < w) {
@@ -121,29 +125,30 @@ class Pente extends React.Component {
     return false;
   }
 
-  checkDiagonal(board, row, col) {
+  checkDiagonal(board, row, col, dir) {
     const space = board[row][col];
     const curVal = space.value;
     let nextVal = space.value;
     let count = 0;
-
+    const loopDir = (dir == 'r') ? (-1) : 1;
+    
     if(curVal != '') {
-      const diff = Math.min(row, col) - Math.min(Math.max(col-(winLength-1), 0), Math.max(row-(winLength-1), 0));
-      for(var i=diff; i >=0; i--) {
-        count = 0;
-        for(var j=0; j<5; j++) {
-          if(row-i+j < w && col-i+j < w) {
-            nextVal = board[row-i+j][col-i+j].value;
-            if(nextVal == curVal) {
-              count++;
-            } else {
-              count=0;
-              break;
-            }
+      const colMax = Math.min(col+wL, w-1);
+      const colMin = Math.max(col-wL, 0);
+      const rowMax = Math.min(row+wL, w-1);
+      const rowMin = Math.max(row-wL, 0);
+      var cInit = (dir == 'r') ? colMax : colMin; 
+
+      for(var r=rowMin, c=cInit; r<=rowMax; c+=loopDir, r++) {
+        nextVal = board[r][c].value;
+        if(nextVal == curVal) {
+          count ++;
+          if(count == winLength) {
+            return true;
           }
-        }
-        if(count == winLength) {
-          return true;
+        } else {
+          count = 0;
+          break;
         }
       }
     }
