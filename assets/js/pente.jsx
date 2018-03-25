@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 
-const w = 10;
+const w = 7;
 const winLength = 5;
 const wL = winLength - 1;
 const players = ['R', 'B'];
@@ -24,6 +24,7 @@ export default function game_init(root) {
   {
     board: Array<Spaces> // a 12x12 2D array of spaces
     turn: String // the player whose turn it is
+    pairs: Object // the number of pairs collected by R and B
   }
 
   A space has:
@@ -35,6 +36,12 @@ export default function game_init(root) {
     }
   }
 
+  pairs:
+  {
+    R: int // the number of pairs collected by r
+    B: int // the number of pairs collected by b
+  }
+
   Players or player pieces are denoted by 'R' (red) or 'B' (black)
 */
 
@@ -44,41 +51,45 @@ class Pente extends React.Component {
     this.state = {
       board: props.board,
       turn: players[Math.floor(Math.random() * players.length)],
+      pairs: {R: 0, B: 0},
     };
   }
 
-  //TODO: fix bug where win is not checked until next click
   makeMove(params) {
     console.log('Current Player: ', this.state.turn);
     console.log('Tile clicked: ', params);
-    const won = this.checkForWin(this.state);
+    console.log('Current state: ', this.state);
     let boardCopy = JSON.parse(JSON.stringify(this.state.board));
     let newTurn = this.state.turn;
     const turnCopy = this.state.turn;
     const row = params.pos.row;
     const col = params.pos.col;
 
-    if(!won) {
-      if(params.value !== 'R' && params.value !== 'B') {
-        boardCopy[row][col].value = turnCopy;
-        newTurn = (turnCopy == 'R') ? 'B' : 'R';
-      }
+    if(params.value !== 'R' && params.value !== 'B') {
+      boardCopy[row][col].value = turnCopy;
+      newTurn = (turnCopy == 'R') ? 'B' : 'R';
+    }
 
-      this.setState({
-        board: boardCopy,
-        turn: newTurn,
-      });
-    } else {
+    let newState = {
+      board: boardCopy,
+      turn: newTurn,
+      pairs: this.state.pairs,
+    }
+    newState = this.checkPairs(newState, row, col);
+
+    this.setState({
+      board: newState.board,
+      turn: newState.turn,
+      pairs: newState.pairs,
+    });
+
+    if(this.checkForWin(newState.board) || this.state.pairs.R == 5 || this.state.pairs.B == 5) {
       alert('Game won! Winner: ' + turnCopy);
-      this.setState({
-        board: emptyBoard,
-        turn: players[Math.floor(Math.random() * players.length)], 
-      });
+      this.reset();
     }
   }
 
-  checkForWin(state) {
-    const board = state.board;
+  checkForWin(board) {
     let isWon = false;
 
     for(var row=0; row<board.length; row++) {
@@ -155,15 +166,84 @@ class Pente extends React.Component {
     return false;
   }
 
+  checkPairs(state, row, col) {
+    const board = state.board;
+    const curVal = board[row][col].value;
+    const oppVal = (curVal == 'R') ? 'B' : 'R';
+    const wBound = w -3;
+    let newState = state;
+    const dirs = ['l', 'r', 'u', 'd', 'lu', 'ld', 'ru', 'rd'];
+
+    for(var i=0; i < dirs.length; i++) {
+      const dir = dirs[i];
+      const left = (dir == 'l' || dir == 'lu' || dir == 'ld');
+      const up = (dir == 'u' || dir == 'lu' || dir == 'ru');
+      const rowDir = (up) ? -1 : 1;
+      const colDir = (left) ? -1 : 1;
+      let bound = true;
+      let rowBound = true;
+      let colBound = true;
+
+      if(dir == 'lu' || dir == 'ru' || dir == 'u') {
+        rowBound = row > 2;
+      } else if(dir == 'ld' || dir == 'rd' || dir == 'd') {
+        rowBound = row < wBound;
+      }
+
+      if(dir == 'lu' || dir == 'l' || dir == 'ld') {
+        colBound = col > 2;
+      } else if(dir == 'ru' || dir == 'r' || dir == 'rd'){
+        colBound = col < wBound;
+      }
+
+      bound = colBound && rowBound;
+
+      if(bound) {
+        const outerRow = (dir == 'l' || dir == 'r') ? row : row + (3 * rowDir);
+        const outerCol = (dir == 'u' || dir == 'd') ? col : col + (3 * colDir);
+        if(board[outerRow][outerCol].value == curVal) {
+          console.log('outer value == curVal');
+          const row1 = (dir == 'l' || dir == 'r') ? row : row + rowDir;
+          const row2 = (dir == 'l' || dir == 'r') ? row : row + (2 * rowDir);
+          const col1 = (dir == 'u' || dir == 'd') ? col : col + colDir;
+          const col2 = (dir == 'u' || dir == 'd') ? col : col + (2 * colDir);
+          if(board[row1][col1].value == oppVal && board[row2][col2].value == oppVal) {
+            newState.board[row1][col1].value = '';
+            newState.board[row2][col2].value = '';
+            newState.pairs[curVal] += 1;
+            break;
+          }
+        }
+      }
+    }
+    return newState;
+  }
+
+  reset() {
+    this.setState({
+      board: emptyBoard,
+      turn: players[Math.floor(Math.random() * players.length)],
+      pairs: {R: 0, B: 0},
+    });
+  }
+
+  viewRules() {
+    alert('Each player takes turn placing pieces on the board. If you place pieces on either side of two of the other players\' pieces (i.e. [R, B, B, R]), you take those pieces from the board and keep them. However, if you place two pieces between your opponents\' pieces, they do not take you pieces. To win, you must be the first player to place 5 pieces in a row either horizontally, vertically, or diagonally or collect 5 pairs of the other players\' pieces.');
+  }
+
   render() {
     return (
       <div className="container">
          <RenderBoardLoop board={this.state.board} onClick={this.makeMove.bind(this)}/>
-         <div className="status">
-           <div className="turn">
-             Current Player: {this.state.turn}
-           </div>
+         <div className="turn">
+           Current Player: {this.state.turn}
          </div>
+         <div className="pairs">
+           <p>Red pairs: {this.state.pairs.R}</p>
+           <p>Black pairs: {this.state.pairs.B}</p> 
+         </div>
+         <button type="button" className="restart btn btn-warning" onClick={this.reset.bind(this)}>Restart</button>
+         <button type="button" className="rules btn btn-info" onClick={this.viewRules.bind(this)}>View Rules</button>
       </div>
     );
   }
@@ -172,7 +252,7 @@ class Pente extends React.Component {
 function RenderButton(params) {
   var makeMove=params.onClick;
   return (
-    <button className="button" onClick={() => makeMove(params)}>{params.value}</button>
+    <button className="piece" onClick={() => makeMove(params)}>{params.value}</button>
   );
 }
 
