@@ -80,7 +80,7 @@ class Pente extends React.Component {
     this.setState(pairState);//set state to updated pairState
 
     //check if pieces in a line or 5 pair win conditions have been met
-    if(this.checkForLineWin(newState.board) || this.state.pairs.R == 5 || this.state.pairs.B == 5) {
+    if(this.checkForLineWin(pairState.board) || this.state.pairs.R == 5 || this.state.pairs.B == 5) {
       alert('Game won! Winner: ' + turnCopy);
       this.reset(); //reset board
     }
@@ -184,13 +184,12 @@ class Pente extends React.Component {
     const curVal = board[row][col].value;
     const oppVal = (curVal == 'R') ? 'B' : 'R';
     const wBound = w - 3; //if the position is less than 3 away from the edge, it can't take a pair in that direction
-    let newState = state;
+    var newState = state;
     const dirs = ['l', 'r', 'u', 'd', 'lu', 'ld', 'ru', 'rd']; // possible directions in which a pair can be taken
 
     //for each direction
     for(var i=0; i < dirs.length; i++) {
       const dir = dirs[i];
-      const left = ();
       //determine iteration direction based on current dir
       const rowDir = (dir == 'u' || dir == 'lu' || dir == 'ru') ? -1 : 1;
       const colDir = (dir == 'l' || dir == 'lu' || dir == 'ld') ? -1 : 1;
