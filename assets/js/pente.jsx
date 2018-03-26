@@ -17,7 +17,8 @@ class Pente extends React.Component {
 
 		this.channel.join()
 			.receive("ok", this.getView.bind(this))
-			.receive("error", resp => { console.log("Unable to join", resp) });
+			.receive("error", resp => { console.log("Unable to join", resp);
+		   					window.location.href = "/"});
 	}
 
 	// Update the current state based on the response from the server

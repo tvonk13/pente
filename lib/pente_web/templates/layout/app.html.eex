@@ -30,6 +30,11 @@
       </main>
 
     </div> <!-- /container -->
+	<script>
+		var capture = /name=([^&]+)/.exec(location);
+		var name = capture ? capture[1] : null;
+		window.userToken = name
+	</script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

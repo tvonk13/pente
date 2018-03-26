@@ -1,6 +1,10 @@
 <h1 id="index-page">Join a Pente Game</h1>
 <form onsubmit="location.href='/game/' 
-		+ document.getElementById('gameName').value; return false;">
-	<input type="text" id="gameName"/>
-	<button type="submit">Create Game</button>
+		+ document.getElementById('gameName').value
+		+ '?name=' + document.getElementById('userName').value; return false;">
+	<label for="gameName">Game Name</label>
+	<input type="text" id="gameName"/><br/>
+	<label for="userName">Your Name</label>
+	<input type="text" id="userName"/><br/>
+	<input type="submit" value="Join Game">
 </form>

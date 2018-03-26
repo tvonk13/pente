@@ -8,7 +8,7 @@ defmodule PenteWeb.GamesChannel do
 	def join("games:" <> name, payload, socket) do
 		if authorized?(payload) do
 			# Join or create a game with the given name
-			game_info = Pente.GameManager.joinGame(name, socket.id)
+			game_info = Pente.GameManager.joinGame(name, socket.assigns.user_id)
 
 			if game_info != nil do
 				game = game_info["game"]
