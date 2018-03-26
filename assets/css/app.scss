@@ -1,12 +1,54 @@
 @import "bootstrap";
 
-.body { font-size: 20pt; }
+.title {
+    text-align: center;
+}
+.body { 
+    font-size: 20pt; 
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.red-pairs {
+    //border: 1px solid red;
+}
+.black-pairs {
+    //border: 1px solid black;
+}
+.board-wrapper {
+    opacity: 0.5;
+}
+.grid-lines {
+    position: absolute;
+}
+.board {
+    position: absolute;
+    margin: 35px;
+}
 .piece { 
   border: 1px solid black;
   width: 50px;
   height: 50px;
   margin: 10px;
+  border-radius: 50%;
+}
+.cell {
+    border: 1px solid black;
+    width: 70px;
+    height: 70px;
+}
+.info {
+    margin: 20px;
+}
+.turn {
+    text-align: left;
+    font-size: 18px;
+}
+.pairs {
+    opacity: 0.75;
+}
+p {
+    margin: 0;
 }
 .btn {
-  margin: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
 }
