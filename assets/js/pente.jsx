@@ -2,11 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 
-const w = 7;
-const winLength = 5;
-const wL = winLength - 1;
-const players = ['R', 'B'];
+const w = 7; //width of the board (size is w x w square)
+const winLength = 5; //number of pieces in a row required for win
+const wL = winLength - 1; //for calculations in checking win condition functions
+const players = ['R', 'B']; //set of players
 var emptyBoard = [];
+
+//create an empty board
 for(var i=0; i<w; i++) {
   var row = [];
   for(var j=0; j<w; j++) {
@@ -22,8 +24,8 @@ export default function game_init(root) {
 /* 
   App state for Pente is:
   {
-    board: Array<Spaces> // a 12x12 2D array of spaces
-    turn: String // the player whose turn it is
+    board: Array<Spaces> // a w x w 2D array of spaces
+    turn: String // the player whose turn it is - oneOf: 'R', 'B'
     pairs: Object // the number of pairs collected by R and B
   }
 
@@ -33,13 +35,13 @@ export default function game_init(root) {
     pos: {
       row: int      // row index
       col: int      // column index
-    }
+    } 
   }
 
-  pairs:
+  A pair has:
   {
-    R: int // the number of pairs collected by r
-    B: int // the number of pairs collected by b
+    R: int // the number of pairs collected by 'R'
+    B: int // the number of pairs collected by 'B'
   }
 
   Players or player pieces are denoted by 'R' (red) or 'B' (black)
@@ -50,50 +52,48 @@ class Pente extends React.Component {
     super(props);
     this.state = {
       board: props.board,
-      turn: players[Math.floor(Math.random() * players.length)],
+      turn: players[Math.floor(Math.random() * players.length)], //randomly choose 'R' or 'B' to start
       pairs: {R: 0, B: 0},
     };
   }
 
   makeMove(params) {
-    console.log('Current Player: ', this.state.turn);
-    console.log('Tile clicked: ', params);
-    console.log('Current state: ', this.state);
     let boardCopy = JSON.parse(JSON.stringify(this.state.board));
     let newTurn = this.state.turn;
     const turnCopy = this.state.turn;
     const row = params.pos.row;
     const col = params.pos.col;
 
-    if(params.value !== 'R' && params.value !== 'B') {
-      boardCopy[row][col].value = turnCopy;
-      newTurn = (turnCopy == 'R') ? 'B' : 'R';
+    if(params.value !== 'R' && params.value !== 'B') { //if space is empty
+      boardCopy[row][col].value = turnCopy; //set value to the current turn
+      newTurn = (turnCopy == 'R') ? 'B' : 'R'; //update turn to the other player
     }
 
-    let newState = {
+    let pairState = {
       board: boardCopy,
       turn: newTurn,
       pairs: this.state.pairs,
     }
-    newState = this.checkPairs(newState, row, col);
+    //check if updated space creates pair-taking condition and update state accordingly
+    pairState = this.checkPairs(pairState, row, col);
 
-    this.setState({
-      board: newState.board,
-      turn: newState.turn,
-      pairs: newState.pairs,
-    });
+    this.setState(pairState);//set state to updated pairState
 
-    if(this.checkForWin(newState.board) || this.state.pairs.R == 5 || this.state.pairs.B == 5) {
+    //check if pieces in a line or 5 pair win conditions have been met
+    if(this.checkForLineWin(newState.board) || this.state.pairs.R == 5 || this.state.pairs.B == 5) {
       alert('Game won! Winner: ' + turnCopy);
-      this.reset();
+      this.reset(); //reset board
     }
   }
 
-  checkForWin(board) {
+  //using the given board, check if there are 5 pieces in a line anywhere on the board
+  checkForLineWin(board) {
     let isWon = false;
 
+    //for every space in the board
     for(var row=0; row<board.length; row++) {
       for(var col=0; col<board.length; col++) {
+        //check horizontal, vertical, and diagonal directions for 5 pieces in a line
         isWon = this.isWonWrapper(board, row, col);
         if(isWon){
           return true;
@@ -103,20 +103,25 @@ class Pente extends React.Component {
     return false;
   }
 
+  //check horizontal, vertical, and diagonal directions from the given position for 5 pieces in a line
   isWonWrapper(board, row, col) {
     return this.checkVertHoriz(board, row, col, 'h') || this.checkVertHoriz(board, row, col, 'v') || this.checkDiagonal(board, row, col, 'l') || this.checkDiagonal(board, row, col, 'r');
   }
 
+  //check horizontal or vertical direction (based on dir - 'h' or 'v') from the given position for 5 pieces in a line
   checkVertHoriz(board, row, col, dir) {
     const space = board[row][col];
     const curVal = space.value;
+    //if dir is 'h', check horizontal, else check vertical
     const index = (dir == 'h') ? col : row;
     let nextVal = space.value;
     let count = 0;
 
     if(curVal != '') {
+      //starting from either 4 spaces away or the farthest edge from the given position to the given position
       for(var i=Math.max(index-wL, 0); i<=index; i++) {
         count = 0;
+        //iterate through chunks of 5 to check for 5 in a line
         for(var j=i; j<Math.min(i+winLength, w); j++) {
           if(j < w) {
             nextVal = (dir == 'h') ? board[row][j].value : board[j][col].value;
@@ -136,20 +141,27 @@ class Pente extends React.Component {
     return false;
   }
 
+  //check diagonal direction (based on dir - 'r' or 'l') from the given position for 5 pieces in a line
   checkDiagonal(board, row, col, dir) {
     const space = board[row][col];
     const curVal = space.value;
     let nextVal = space.value;
     let count = 0;
+    //if dir is 'r' check diagonal direction from upper left to lower right
+    //otherwise check from upper right to lower left
     const loopDir = (dir == 'r') ? (-1) : 1;
     
     if(curVal != '') {
+      //find the furthest out diagonally in each direction, up to 4 spaces away, 
+      //from the given position that doesn't go out of bounds
       const colMax = Math.min(col+wL, w-1);
       const colMin = Math.max(col-wL, 0);
       const rowMax = Math.min(row+wL, w-1);
       const rowMin = Math.max(row-wL, 0);
+      //based on the given direction, determine starting column position
       var cInit = (dir == 'r') ? colMax : colMin; 
 
+      //starting from 4 away from the given position to 4 away in the opposite direction
       for(var r=rowMin, c=cInit; r<=rowMax; c+=loopDir, r++) {
         nextVal = board[r][c].value;
         if(nextVal == curVal) {
@@ -166,30 +178,34 @@ class Pente extends React.Component {
     return false;
   }
 
+  //check if the given position captures a pair of the opponents pieces
   checkPairs(state, row, col) {
     const board = state.board;
     const curVal = board[row][col].value;
     const oppVal = (curVal == 'R') ? 'B' : 'R';
-    const wBound = w -3;
+    const wBound = w - 3; //if the position is less than 3 away from the edge, it can't take a pair in that direction
     let newState = state;
-    const dirs = ['l', 'r', 'u', 'd', 'lu', 'ld', 'ru', 'rd'];
+    const dirs = ['l', 'r', 'u', 'd', 'lu', 'ld', 'ru', 'rd']; // possible directions in which a pair can be taken
 
+    //for each direction
     for(var i=0; i < dirs.length; i++) {
       const dir = dirs[i];
-      const left = (dir == 'l' || dir == 'lu' || dir == 'ld');
-      const up = (dir == 'u' || dir == 'lu' || dir == 'ru');
-      const rowDir = (up) ? -1 : 1;
-      const colDir = (left) ? -1 : 1;
+      const left = ();
+      //determine iteration direction based on current dir
+      const rowDir = (dir == 'u' || dir == 'lu' || dir == 'ru') ? -1 : 1;
+      const colDir = (dir == 'l' || dir == 'lu' || dir == 'ld') ? -1 : 1;
       let bound = true;
       let rowBound = true;
       let colBound = true;
 
+      //check if row exceeds bound for possible pair taking
       if(dir == 'lu' || dir == 'ru' || dir == 'u') {
         rowBound = row > 2;
       } else if(dir == 'ld' || dir == 'rd' || dir == 'd') {
         rowBound = row < wBound;
       }
 
+      //check if col excedds bound for possible pair taking
       if(dir == 'lu' || dir == 'l' || dir == 'ld') {
         colBound = col > 2;
       } else if(dir == 'ru' || dir == 'r' || dir == 'rd'){
@@ -198,16 +214,18 @@ class Pente extends React.Component {
 
       bound = colBound && rowBound;
 
-      if(bound) {
+      if(bound) { //if col and dir are within possible bounds for taking a pair
+        //check if current player has a piece on the other side of 2 spaces
         const outerRow = (dir == 'l' || dir == 'r') ? row : row + (3 * rowDir);
         const outerCol = (dir == 'u' || dir == 'd') ? col : col + (3 * colDir);
         if(board[outerRow][outerCol].value == curVal) {
-          console.log('outer value == curVal');
+          //check if 2 inner spaces both have opponent pieces
           const row1 = (dir == 'l' || dir == 'r') ? row : row + rowDir;
           const row2 = (dir == 'l' || dir == 'r') ? row : row + (2 * rowDir);
           const col1 = (dir == 'u' || dir == 'd') ? col : col + colDir;
           const col2 = (dir == 'u' || dir == 'd') ? col : col + (2 * colDir);
           if(board[row1][col1].value == oppVal && board[row2][col2].value == oppVal) {
+            //"remove" pieces from board and update current players' number of pairs taken  
             newState.board[row1][col1].value = '';
             newState.board[row2][col2].value = '';
             newState.pairs[curVal] += 1;
@@ -219,6 +237,7 @@ class Pente extends React.Component {
     return newState;
   }
 
+  //reset board back to empty state
   reset() {
     this.setState({
       board: emptyBoard,
@@ -227,8 +246,9 @@ class Pente extends React.Component {
     });
   }
 
+  //alert box for rules of the game
   viewRules() {
-    alert('Each player takes turn placing pieces on the board. If you place pieces on either side of two of the other players\' pieces (i.e. [R, B, B, R]), you take those pieces from the board and keep them. However, if you place two pieces between your opponents\' pieces, they do not take you pieces. To win, you must be the first player to place 5 pieces in a row either horizontally, vertically, or diagonally or collect 5 pairs of the other players\' pieces.');
+    alert('Each player takes turn placing pieces on the board. If you place pieces on either side of two of the other players\' pieces (i.e. [R, B, B, R]), you take those pieces from the board and keep them. However, if you place two pieces between your opponents\' pieces, they do not take your pieces. To win, you must be the first player to place 5 pieces in a row either horizontally, vertically, or diagonally or collect 5 pairs of the other players\' pieces.');
   }
 
   render() {
