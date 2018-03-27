@@ -3,19 +3,23 @@ defmodule PenteWeb.GamesChannel do
 	use PenteWeb, :channel
 
 	alias Pente.Game
+	alias Pente.GameManager
 
 	# Handle the initial connection by the client (associate name and game with socket)
 	def join("games:" <> name, payload, socket) do
 		if authorized?(payload) do
 			# Join or create a game with the given name
-			game_info = Pente.GameManager.joinGame(name, socket.assigns.user_id)
+			game_info = GameManager.joinGame(name, socket.assigns.user_id)
 
 			if game_info != nil do
 				game = game_info["game"]
 
+				color = if (game_info["p1"] == socket.assigns.user_id), do: "R", else: "B"
+
 				socket = socket
 				|> assign(:game, game)
 				|> assign(:name, name)
+				|> assign(:color, color)
 
 				{:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
 			else
@@ -29,27 +33,45 @@ defmodule PenteWeb.GamesChannel do
 	# Handle the event for a player move
 	def handle_in("PLAYER_MOVE", %{"row" => row, "col" => col}, socket) do
 
-		# TODO
-		# Change x and y to row and col?
-		# Get the current state? Or is it assumed updated because of broadcasts?
-		# Check if current turn user matches the person requesting/broadcasting
+		# Pull out the current state
+		game = socket.assigns[:game]
+		curTurn = game["turn"]
 
-		game = Game.makeMove(socket.assigns[:game], row, col)
+		# If its not our turn, do nothing
+		if (curTurn != socket.assigns.color) do
+			{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
 
-		# Set new state in socket
-		# Broadcast new state to channel?
+		# Its our turn, make the move
+		else
+			# Get the new game state
+			game = Game.makeMove(game, row, col)
 
-		{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+			# Set new state in socket
+			socket = assign(socket, :game, game)
 
+			# Set new state in game manager
+			GameManager.updateGame(game, socket.assigns.name)
+
+			# Broadcast new state to channel
+			broadcast! socket, "new_state", %{"game" => game}
+
+			{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+		end
 	end
 
-	# NOTE: Does handle_in take messages from any socket connected to the channel?
+	# Handle the event for a restart
+	def handle_in("restart", _params, socket) do
+		# Generate a new game state
+		newGame = Game.new
+		
+		# Set the new state in the game manager
+		GameManager.updateGame(newGame, socket.assigns.name)
 
-	# TODO: All responses back to the client should have some information about whether they are p1 or p2
+		# Broadcast new state
+		broadcast! socket, "new_state", %{"game" => newGame}
 
-	# TODO:
-	# - add broadcasts in actions to communicate to other channel topic/subtopic subs
-	# - Test 
+		{:reply, {:ok, %{ "game" => Game.client_view(newGame)}}, socket}
+	end
 
 	# Do any necessary authorization checks for joining
 	def authorized?(_payload) do

@@ -59,4 +59,21 @@ defmodule Pente.GameManager do
 		end
 	end
 
+	# Update the game state stored in the agent
+	def updateGame(game, name) do
+		# Get the current game info
+		game_info = Agent.get __MODULE__, fn state ->
+            Map.get(state, name)
+        end
+
+		info = put_in game_info["game"], game
+
+		# Put the new game_info back into the agent map
+		Agent.update __MODULE__, fn state ->
+			Map.put(state, name, info)
+		end
+
+		# Return the updated game
+		getGame(name)
+	end
 end
