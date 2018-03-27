@@ -26,6 +26,23 @@ defmodule PenteWeb.GamesChannel do
 		end
 	end
 
+	# Handle the event for a player move
+	def handle_in("PLAYER_MOVE", %{"x" => x, "y" => y}, socket) do
+
+		# TODO
+		# Change x and y to row and col?
+		# Get the current state? Or is it assumed updated because of broadcasts?
+		# Check if current turn user matches the person requesting/broadcasting
+
+		Game.makeMove(socket.assigns[:game], x, y)
+
+		# Set new state in socket
+		# Broadcast new state to channel?
+
+		{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+
+	end
+
 	# NOTE: Does handle_in take messages from any socket connected to the channel?
 
 	# TODO: All responses back to the client should have some information about whether they are p1 or p2
