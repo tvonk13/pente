@@ -14,10 +14,24 @@ defmodule Pente.GameManager do
             Map.get(state, name)
         end
 
-		# Game exists
-		if game_info do
+		cond do
+			# Game doesn't exist yet, create it
+			!game_info ->
+				IO.puts "Starting new game: #{name}"
+				game = Game.new()
+				Agent.update __MODULE__, fn state ->
+            		info = %{"game" => game, "p1" => user_id, "p2" => nil}
+            		Map.put(state, name, info)
+        		end
+				getGame(name)
+				
+			# Player is already in the game
+			game_info["p1"] == user_id || game_info["p2"] == user_id ->
+				IO.puts "Player returning: #{user_id}"
+				game_info
+
 			# Waiting for second player
-			if game_info["p2"] == nil do
+			game_info["p2"] == nil ->
 				IO.puts "Joining game: #{name}"
 				IO.puts "This user: #{user_id}"
 				info = %{"game" => game_info["game"], 
@@ -28,23 +42,14 @@ defmodule Pente.GameManager do
 					Map.put(state, name, info)
 				end
 				getGame(name)
-			# The game is full
-			else
+
+			# Else, the game is full
+			true ->
 				IO.puts "Failed to join full game: #{name}"
 				# TODO: Throw some kind of error?
 				nil
-			end
-
-		# Game doesn't exist yet, create it
-		else
-			IO.puts "Starting new game: #{name}"
-			game = Game.new()
-			Agent.update __MODULE__, fn state ->
-            	info = %{"game" => game, "p1" => user_id, "p2" => nil}
-            	Map.put(state, name, info)
-        	end
-			getGame(name)
 		end
+
 	end
 			
 	# Get a game record by name if it exists

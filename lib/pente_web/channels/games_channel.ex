@@ -27,20 +27,19 @@ defmodule PenteWeb.GamesChannel do
 	end
 
 	# Handle the event for a player move
-	def handle_in("PLAYER_MOVE", %{"x" => x, "y" => y}, socket) do
+	def handle_in("PLAYER_MOVE", %{"row" => row, "col" => col}, socket) do
 
 		# TODO
 		# Change x and y to row and col?
 		# Get the current state? Or is it assumed updated because of broadcasts?
 		# Check if current turn user matches the person requesting/broadcasting
 
-		# Game.makeMove(socket.assigns[:game], x, y)
+		game = Game.makeMove(socket.assigns[:game], row, col)
 
 		# Set new state in socket
 		# Broadcast new state to channel?
 
-		#{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
-		{:reply, {:ok, %{}}, socket}
+		{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
 
 	end
 

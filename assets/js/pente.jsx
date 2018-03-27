@@ -14,6 +14,7 @@ class Pente extends React.Component {
 		this.channel = props.channel;
 
 		// TODO: Set initial local state?
+		this.state = null;
 
 		this.channel.join()
 			.receive("ok", this.getView.bind(this))
@@ -29,7 +30,13 @@ class Pente extends React.Component {
 
 	// Render the UI
 	render() {
-		return (<div>test</div>);
+		if (this.state == null) {
+			return (<div>NO STATE YET</div>);
+		} else {
+			return (
+				<div>TURN: {this.state.turn}</div>
+			);
+		}
 	}
 
 }
