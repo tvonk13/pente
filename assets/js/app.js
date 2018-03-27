@@ -19,3 +19,12 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 // import socket from "./socket"
+
+import game_init from "./pente";
+
+function start() {
+  let root = document.getElementById('root');
+  game_init(root);
+}
+
+$(start);
