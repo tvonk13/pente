@@ -51,7 +51,7 @@ exports.config = {
     },
     sass: {
       options: {
-		includePaths: ["node_modules/boostrap/scss"],
+		includePaths: ["node_modules/bootstrap/scss"],
 		precision: 8,
 	  }
 	}
@@ -67,7 +67,8 @@ exports.config = {
     enabled: true,
     globals: {
       _: 'underscore',
-      $: 'jquery'
+      $: 'jquery',
+	  bootstrap: 'bootstrap'
     }
   }
 };
