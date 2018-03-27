@@ -263,24 +263,33 @@ class Pente extends React.Component {
     render() {
         var turnColor = (this.state.turn == 'R') ? 'red' : 'black';
         return (
-            <div className="container">
-                <div className="board-wrapper">
-                    <div className="grid-lines">
-                        <RenderGrid board={this.state.board} />
-                    </div>
-                    <div className="board">
-                        <RenderBoardLoop board={this.state.board} onClick={this.makeMove.bind(this)} />
+            <div className="row container">
+                <div className="col">
+                    <div className="board-wrapper">
+                        <div className="grid-lines">
+                            <RenderGrid board={this.state.board} />
+                        </div>
+                        <div className="board">
+                            <RenderBoardLoop board={this.state.board} onClick={this.makeMove.bind(this)} />
+                        </div>
                     </div>
                 </div>
-                <div className="info">
-                    <div className="turn" style={{ color: turnColor }}>
-                        {(this.state.turn == 'R') ? 'Red' : 'Black'}'s turn
+                <div className="col">
+                    <div className="info">
+                        <div className="turn" style={{ color: turnColor }}>
+                            {(this.state.turn == 'R') ? 'Red' : 'Black'}'s turn
+                        </div>
+                        <div className="pairs">
+                            <div className="pair-table-title" >
+                                Pairs taken:
+                            </div>
+                            <RenderPairTable redPairs={this.state.pairs.R} blackPairs={this.state.pairs.B} />
+                        </div>
+                        <div className="buttons">
+                            <button type="button" className="restart btn btn-warning" onClick={this.reset.bind(this)}>Restart</button>
+                            <button type="button" className="rules btn btn-info" onClick={this.viewRules.bind(this)}>Rules</button>
+                        </div>
                     </div>
-                    <div className="pairs">
-                        <RenderPairTable redPairs={this.state.pairs.R} blackPairs={this.state.pairs.B} />
-                    </div>
-                    <button type="button" className="restart btn btn-warning" onClick={this.reset.bind(this)}>Restart</button>
-                    <button type="button" className="rules btn btn-info" onClick={this.viewRules.bind(this)}>View Rules</button>
                 </div>
             </div>
         );
@@ -354,7 +363,7 @@ function RenderPairTable(params) {
     var blackArr = [];
     var redCount = params.redPairs;
     var blackCount = params.blackPairs;
-    for (var i = 0; i <= 5; i++) {
+    for (var i = 0; i < 5; i++) {
         if (redCount > 0) {
             redArr.push(1);
             redCount--;
@@ -370,14 +379,12 @@ function RenderPairTable(params) {
     }
     return (
         <div className="grid pairTable">
-            <div className="row pairRow">
-                <div className="pairRowName">Red</div>
+            <div className="row pairRow" style={{ backgroundColor: 'red' }}>
                 {redArr.map((pair, i) =>
-                    <RenderPair key={i}pair={pair} color='black' />
+                    <RenderPair key={i} pair={pair} color='black' />
                 )}
             </div>
-            <div className="row pairRow">
-                <div className="pairRowName">Black</div>
+            <div className="row pairRow" style={{ backgroundColor: 'black' }}>
                 {blackArr.map((pair, i) =>
                     <RenderPair key={i} pair={pair} color='red' />
                 )}
