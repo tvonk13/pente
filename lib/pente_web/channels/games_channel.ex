@@ -34,12 +34,13 @@ defmodule PenteWeb.GamesChannel do
 		# Get the current state? Or is it assumed updated because of broadcasts?
 		# Check if current turn user matches the person requesting/broadcasting
 
-		Game.makeMove(socket.assigns[:game], x, y)
+		# Game.makeMove(socket.assigns[:game], x, y)
 
 		# Set new state in socket
 		# Broadcast new state to channel?
 
-		{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+		#{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+		{:reply, {:ok, %{}}, socket}
 
 	end
 

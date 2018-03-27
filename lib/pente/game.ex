@@ -69,7 +69,7 @@ defmodule Pente.Game do
 		end
 		
 		# Return the modified game state, updating the current player turn at the end
-		game = put_in game["turn"], changeTurn(curTurn)
+		put_in game["turn"], changeTurn(curTurn)
 
 	end
 
@@ -97,7 +97,6 @@ defmodule Pente.Game do
 
 			rowDir = if (dir == 'u' || dir == 'lu' || dir == 'ru'), do: -1, else: 1
 			colDir = if (dir == 'l' || dir == 'lu' || dir == 'ld'), do: -1, else: 1
-			bound = true
 			rowBound = true
 			colBound = true
 
@@ -139,6 +138,8 @@ defmodule Pente.Game do
 						game = put_in game["board"][row1][col1], ""
 						game = put_in game["board"][row2][col2], ""
 						game = put_in game["pairs"][curTurn], game["pairs"][curTurn] + 1
+					end
+				end
 			end
 
 			# Recurse to next direction
