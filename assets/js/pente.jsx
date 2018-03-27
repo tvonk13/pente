@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 
-const w = 5; //width of the board (size is w x w square)
+const w = 10; //width of the board (size is w x w square)
 const winLength = 5; //number of pieces in a row required for win
 const wL = winLength - 1; //for calculations in checking win condition functions
 const players = ['R', 'B']; //set of players
@@ -264,21 +264,6 @@ class Pente extends React.Component {
         var turnColor = (this.state.turn == 'R') ? 'red' : 'black';
         return (
             <div className="container">
-                <div className="info">
-                    <div className="turn" style={{color: turnColor}}>
-                        {(this.state.turn == 'R') ? 'Red' : 'Black'}'s turn
-                    </div>
-                    <div className="pairs">
-                        <div className="red-pairs">
-                            <p>Red pairs: {this.state.pairs.R}</p>
-                        </div>
-                        <div className="black-pairs">
-                            <p>Black pairs: {this.state.pairs.B}</p>
-                        </div>
-                    </div>
-                    <button type="button" className="restart btn btn-warning" onClick={this.reset.bind(this)}>Restart</button>
-                    <button type="button" className="rules btn btn-info" onClick={this.viewRules.bind(this)}>View Rules</button>
-                </div>
                 <div className="board-wrapper">
                     <div className="grid-lines">
                         <RenderGrid board={this.state.board} />
@@ -286,6 +271,16 @@ class Pente extends React.Component {
                     <div className="board">
                         <RenderBoardLoop board={this.state.board} onClick={this.makeMove.bind(this)} />
                     </div>
+                </div>
+                <div className="info">
+                    <div className="turn" style={{ color: turnColor }}>
+                        {(this.state.turn == 'R') ? 'Red' : 'Black'}'s turn
+                    </div>
+                    <div className="pairs">
+                        <RenderPairTable redPairs={this.state.pairs.R} blackPairs={this.state.pairs.B} />
+                    </div>
+                    <button type="button" className="restart btn btn-warning" onClick={this.reset.bind(this)}>Restart</button>
+                    <button type="button" className="rules btn btn-info" onClick={this.viewRules.bind(this)}>View Rules</button>
                 </div>
             </div>
         );
@@ -333,10 +328,60 @@ function RenderGrid(params) {
             {arr.map((row, i) =>
                 <div className="row" key={i}>
                     {row.map((space, j) =>
-                        <div key={j} className="cell"></div>
+                        <div key={j} className="square"></div>
                    )}
                 </div>
             )}
+        </div>
+    );
+}
+
+function RenderPair(params) {
+    var pairStyle = {
+        backgroundColor: params.color,
+        opacity: params.pair,
+    }
+    return (
+        <div className="pair">
+            <div className="circle" style={pairStyle} ></div>
+            <div className="circle" style={pairStyle} ></div>
+        </div>
+    );
+}
+
+function RenderPairTable(params) {
+    var redArr = [];
+    var blackArr = [];
+    var redCount = params.redPairs;
+    var blackCount = params.blackPairs;
+    for (var i = 0; i <= 5; i++) {
+        if (redCount > 0) {
+            redArr.push(1);
+            redCount--;
+        } else {
+            redArr.push(0);
+        }
+        if (blackCount > 0) {
+            blackArr.push(1);
+            blackCount--;
+        } else {
+            blackArr.push(0);
+        }
+    }
+    return (
+        <div className="grid pairTable">
+            <div className="row pairRow">
+                <div className="pairRowName">Red</div>
+                {redArr.map((pair, i) =>
+                    <RenderPair key={i}pair={pair} color='black' />
+                )}
+            </div>
+            <div className="row pairRow">
+                <div className="pairRowName">Black</div>
+                {blackArr.map((pair, i) =>
+                    <RenderPair key={i} pair={pair} color='red' />
+                )}
+            </div>
         </div>
     );
 }
