@@ -31,7 +31,7 @@ defmodule PenteWeb.GamesChannel do
 	end
 
 	# Handle the event for a player move
-	def handle_in("PLAYER_MOVE", %{"row" => row, "col" => col}, socket) do
+	def handle_in("player_move", %{"row" => row, "col" => col}, socket) do
 
 		# Pull out the current state
 		game = socket.assigns[:game]

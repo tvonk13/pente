@@ -6,6 +6,8 @@ export default function run_pente(root, channel) {
 	ReactDOM.render(<Pente channel={channel} />, root);
 }
 
+var w = 7
+
 class Pente extends React.Component {
 
 	// Set an initial empty state and connect to the channel to get the first view
@@ -14,7 +16,21 @@ class Pente extends React.Component {
 		this.channel = props.channel;
 
 		// Set initial local state
-		this.state = null;
+		var emptyBoard = [];
+		for (var i = 0; i < w; i++) {
+			var row = [];
+			for (var j = 0; j < w; j++) {
+				row.push('');
+			}
+		    emptyBoard.push(row);
+		}
+
+		this.state = {
+			board: emptyBoard,
+			turn: 'R',
+			pairs: {R: 0, B: 0}
+		}
+		console.log(JSON.stringify(this.state, null, 4))
 
 		// Set channel listener for moves
 		this.channel.on("new_state", payload => {
@@ -31,6 +47,7 @@ class Pente extends React.Component {
 	// Update the current state based on the response from the server
 	getView(view) {
 		console.log("New view");
+		console.log(JSON.stringify(view.game, null, 4))
 		this.setState(view.game);
 	}
 
@@ -39,6 +56,21 @@ class Pente extends React.Component {
         alert('Each player takes turn placing pieces on the board. To place a piece on the board, click on an intersection of the grid. If you place pieces on either side of two of the other players\' pieces (i.e. [R, B, B, R]), you take those pieces from the board and keep them. However, if you place two pieces between your opponents\' pieces, they do not take your pieces. To win, you must be the first player to place 5 pieces in a row either horizontally, vertically, or diagonally or collect 5 pairs of the other players\' pieces.');
     }
 
+	// Process user move. Send message to channel
+	makeMove(row, col) {
+		console.log("Sending move to channel");
+		this.channel.push("player_move", {row: row, col: col})
+			.receive("ok", this.getView.bind(this));
+	}
+
+	// Restart the game with a fresh game state
+	reset() {
+		console.log("Restarting the game");
+		this.channel.push("restart")
+			.receive("ok", this.getView.bind(this));
+	}
+
+	// Actually render the game UI
     render() {
         var turnColor = (this.state.turn == 'R') ? 'red' : 'black';
         return (
@@ -91,7 +123,7 @@ function RenderButton(params) {
         opacity: bgOpacity
     };
     return (
-        <button className="piece" style={buttonStyle} onClick={() => makeMove(params)}></button>
+        <button className="piece" style={buttonStyle} onClick={() => makeMove(params.row, params.col)}></button>
     );
 }
 
@@ -101,7 +133,7 @@ function RenderBoardLoop(params) {
             {params.board.map((row, i) =>
                 <div className="row" key={i}>
                     {row.map((space, j) =>
-                        <RenderButton key={j} value={space.value} pos={space.pos} onClick={params.onClick} />
+                        <RenderButton key={j} value={space} row={i} col={j} onClick={params.onClick} />
                     )}
                 </div>
             )}
