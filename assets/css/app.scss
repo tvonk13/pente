@@ -2,6 +2,7 @@
 
 .title {
     text-align: center;
+    margin-top: 5%;
 }
 .body { 
     font-size: 20pt; 
@@ -15,7 +16,8 @@
 .grid-lines {
     position: absolute;
     margin: 10px;
-    min-width: 568px;
+    min-width: 550px;
+    width: 550px;
 }
 .square {
     border: 1px solid black;
@@ -83,4 +85,8 @@ p {
 }
 button:focus {
     outline: 0;
+}
+.welcome {
+    margin: 25px;
+    text-align: center;
 }
