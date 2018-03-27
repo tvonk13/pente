@@ -9,10 +9,6 @@ function start() {
 		let channel = socket.channel("games:" + window.gameName, {});
 		run_pente(root, channel);
 	}
-
-	if (document.getElementById('index-page')) {
-		//form_init();
-	}
 }
 
 $(start);

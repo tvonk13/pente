@@ -47,6 +47,7 @@ exports.config = {
     babel: {
       // Do not use ES6 compiler in vendor code
       ignore: [/vendor/],
+<<<<<<< HEAD
 	  presets: ['env', 'react'],
     },
     sass: {
@@ -55,6 +56,16 @@ exports.config = {
 		precision: 8,
 	  }
 	}
+=======
+      presets: ['env', 'react'],
+    },
+    sass: {
+      options: {
+        includePaths: ["node_modules/bootstrap/scss"],
+        precision: 8,
+      }
+    }
+>>>>>>> origin/master
   },
 
   modules: {
@@ -65,9 +76,16 @@ exports.config = {
 
   npm: {
     enabled: true,
+<<<<<<< HEAD
 	globals: {
 	  _: 'underscore',
 	  $: 'jquery'
 	}
+=======
+    globals: {
+      _: 'underscore',
+      $: 'jquery'
+    }
+>>>>>>> origin/master
   }
 };
