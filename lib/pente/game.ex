@@ -50,8 +50,6 @@ defmodule Pente.Game do
 		
 		targetVal = board[x][y]
 
-		# TODO: Handle untrustworthy client? (Clicked space is not empty, etc?)
-
 		# If space is empty
 		if targetVal == "" do
 			# Update the value for the clicked space
@@ -123,9 +121,9 @@ defmodule Pente.Game do
 			# If we are within bounds for taking a pair, check pieces
 			if bound do
 				# Check if the current player has a piece on the other side of 2 spaces
-				outerRow = if (dir == 'l' || dir == 'r'), do: row, else: 3 * rowDir
-				outerCol = if (dir == 'u' || dir == 'd'), do: col, else: 3 * colDir
-				
+				outerRow = if (dir == 'l' || dir == 'r'), do: row, else: row + (3 * rowDir)
+				outerCol = if (dir == 'u' || dir == 'd'), do: col, else: col + (3 * colDir)
+
 				if board[outerRow][outerCol] == curTurn do
 					# Check if 2 inner spaces both have opponent pieces
 					row1 = if (dir == 'l' || dir == 'r'), do: row, else: row + rowDir
@@ -137,6 +135,8 @@ defmodule Pente.Game do
 						# Valid capture: Update the game state
 						game = put_in game["board"][row1][col1], ""
 						game = put_in game["board"][row2][col2], ""
+
+						# Return the updated game state
 						game = put_in game["pairs"][curTurn], game["pairs"][curTurn] + 1
 					end
 				end
@@ -196,7 +196,7 @@ defmodule Pente.Game do
 		curVal = board[row][col]
 
 		# Only check non-empty lines that fit on the board
-		if row < @boardWidth - @winLength && curVal != "" do
+		if row <= @boardWidth - @winLength && curVal != "" do
 			matching = curVal == board[row + dif][col]
 
 			# End of the checked line, stop recursing
@@ -218,7 +218,7 @@ defmodule Pente.Game do
 		curVal = board[row][col]
 
 		# Only check non-empty lines that fit on the board
-		if col < @boardWidth - @winLength && curVal != "" do
+		if col <= @boardWidth - @winLength && curVal != "" do
 			matching = curVal == board[row][col + dif]
 
 			# End of the checked line, stop recursing
@@ -240,8 +240,8 @@ defmodule Pente.Game do
 		curVal = board[row][col]
 
 		# Only check non-empty lines that fit on the board
-		if col < @boardWidth - @winLength 
-				&& row > @boardWidth - @winLength
+		if col <= @boardWidth - @winLength 
+				&& row <= @boardWidth - @winLength
 				&& curVal != "" do
 
 			matching = curVal == board[row + dif][col + dif]
@@ -265,8 +265,8 @@ defmodule Pente.Game do
 		curVal = board[row][col]
 
 		# Only check non-empty lines that fit on the board
-		if col < @boardWidth - @winLength 
-				&& row > @winLength
+		if col <= @boardWidth - @winLength 
+				&& row >= @winLength - 1
 				&& curVal != "" do
 
 			matching = curVal == board[row - dif][col + dif]

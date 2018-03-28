@@ -33,12 +33,17 @@ defmodule PenteWeb.GamesChannel do
 	# Handle the event for a player move
 	def handle_in("player_move", %{"row" => row, "col" => col}, socket) do
 
-		# Pull out the current state
+		# Get the current state
 		game = socket.assigns[:game]
 		curTurn = game["turn"]
 
-		# If its not our turn, do nothing
-		if (curTurn != socket.assigns.color) do
+		# Do nothing if:
+		# - It is not our turn
+		# - Clicked space is not empty
+		# - Game is over
+		if (curTurn != socket.assigns.color ||
+				game["board"][row][col] != "" ||
+				game["winner"] != "") do
 			{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
 
 		# Its our turn, make the move
