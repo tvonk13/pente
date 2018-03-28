@@ -6,7 +6,7 @@ export default function run_pente(root, channel) {
 	ReactDOM.render(<Pente channel={channel} />, root);
 }
 
-var w = 7
+var w = 10;
 
 class Pente extends React.Component {
 

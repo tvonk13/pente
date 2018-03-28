@@ -33,7 +33,7 @@ if [ -d ~/www/pente ]; then
 fi
 
 mkdir -p ~/www/pente
-REL_TAR=~/src/pente/_build/prod/rel/memory/releases/0.0.1/memory.tar.gz
+REL_TAR=~/src/pente/_build/prod/rel/pente/releases/0.0.1/pente.tar.gz
 (cd ~/www/pente && tar xzvf $REL_TAR)
 
 crontab - <<CRONTAB
