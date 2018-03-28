@@ -53,7 +53,7 @@ defmodule PenteWeb.GamesChannel do
 			GameManager.updateGame(game, socket.assigns.name)
 
 			# Broadcast new state to channel
-			broadcast! socket, "new_state", %{"game" => game}
+			broadcast! socket, "new_state", %{"game" => Game.client_view(game), "s_game" => game}
 
 			{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
 		end
@@ -68,9 +68,21 @@ defmodule PenteWeb.GamesChannel do
 		GameManager.updateGame(newGame, socket.assigns.name)
 
 		# Broadcast new state
-		broadcast! socket, "new_state", %{"game" => newGame}
+		broadcast! socket, "new_state", %{"game" => Game.client_view(newGame), "s_game" => newGame}
 
 		{:reply, {:ok, %{ "game" => Game.client_view(newGame)}}, socket}
+	end
+
+	# Handle new_state broadcast from other clients
+	intercept ["new_state"]
+	def handle_out("new_state", %{"game" => client_game, "s_game" => game}, socket) do
+		# Make sure the new game state is set in the socket
+		socket = assign(socket, :game, game)
+
+		# Forward on the message to the client
+		push socket, "new_state", %{"game" => client_game}
+
+		{:noreply, socket}
 	end
 
 	# Do any necessary authorization checks for joining

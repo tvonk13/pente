@@ -30,7 +30,6 @@ class Pente extends React.Component {
 			turn: 'R',
 			pairs: {R: 0, B: 0}
 		}
-		console.log(JSON.stringify(this.state, null, 4))
 
 		// Set channel listener for moves
 		this.channel.on("new_state", payload => {
@@ -47,7 +46,6 @@ class Pente extends React.Component {
 	// Update the current state based on the response from the server
 	getView(view) {
 		console.log("New view");
-		console.log(JSON.stringify(view.game, null, 4))
 		this.setState(view.game);
 	}
 
@@ -114,6 +112,8 @@ function RenderButton(params) {
     var makeMove = params.onClick;
     let bgColor = 'white';
     let bgOpacity = 0;
+	var r = params.row;
+	var c = params.col;
     if (params.value != '') {
         bgColor = (params.value == 'R') ? 'red' : 'black';
         bgOpacity = 1;
@@ -123,7 +123,7 @@ function RenderButton(params) {
         opacity: bgOpacity
     };
     return (
-        <button className="piece" style={buttonStyle} onClick={() => makeMove(params.row, params.col)}></button>
+        <button className="piece" style={buttonStyle} onClick={() => makeMove(r, c)}>{r},{c}</button>
     );
 }
 
