@@ -6,7 +6,7 @@ export default function run_pente(root, channel) {
 	ReactDOM.render(<Pente channel={channel} />, root);
 }
 
-var w = 10
+var w = 7
 
 class Pente extends React.Component {
 
@@ -29,7 +29,8 @@ class Pente extends React.Component {
 			winner: '',
 			board: emptyBoard,
 			turn: 'R',
-			pairs: {R: 0, B: 0}
+			pairs: {R: 0, B: 0},
+			myColor: 'R'
 		}
 
 		// Set channel listener for moves
@@ -90,8 +91,9 @@ class Pente extends React.Component {
                 <div className="col">
                     <div className="info">
 						<RenderWinner winner={this.state.winner}/>
+						<div>Your color is {(this.state.myColor == 'R') ? 'Red' : 'Black'}</div>
                         <div className="turn" style={{ color: turnColor }}>
-                            {(this.state.turn == 'R') ? 'Red' : 'Black'}'s turn
+						    {(this.state.turn == 'R') ? 'Red' : 'Black'}'s turn
                             </div>
                         <div className="pairs">
                             <div className="pair-table-title" >
@@ -136,7 +138,7 @@ function RenderButton(params) {
         opacity: bgOpacity
     };
     return (
-        <button className="piece" style={buttonStyle} onClick={() => makeMove(r, c)}>{c},{r}</button>
+        <button className="piece" style={buttonStyle} onClick={() => makeMove(r, c)}></button>
     );
 }
 

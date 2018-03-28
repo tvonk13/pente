@@ -292,12 +292,12 @@ defmodule Pente.Game do
 		new()
 	end
 
-	def client_view(game) do
-		#game
+	def client_view(game, color) do
 		board = game["board"]
 		board = Enum.reduce(board, [], fn(row, acc) -> acc ++ [Enum.reduce(elem(row, 1), [], fn(x, acc) -> acc ++ [elem(x, 1)] end)] end)
 
-		put_in game["board"], board
+		game = put_in game["board"], board
+		put_in game["myColor"], color
 	end
 
 end

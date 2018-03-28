@@ -37,7 +37,6 @@ defmodule Pente.GameManager do
 				info = %{"game" => game_info["game"], 
 						"p1" => game_info["p1"], 
 						"p2" => user_id}
-				IO.inspect info
 				Agent.update __MODULE__, fn state ->
 					Map.put(state, name, info)
 				end
@@ -46,7 +45,6 @@ defmodule Pente.GameManager do
 			# Else, the game is full
 			true ->
 				IO.puts "Failed to join full game: #{name}"
-				# TODO: Throw some kind of error?
 				nil
 		end
 

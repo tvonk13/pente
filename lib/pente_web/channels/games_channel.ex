@@ -21,7 +21,7 @@ defmodule PenteWeb.GamesChannel do
 				|> assign(:name, name)
 				|> assign(:color, color)
 
-				{:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
+				{:ok, %{"join" => name, "game" => Game.client_view(game, color), }, socket}
 			else
 				{:error, %{reason: "unable to join game"}}
 			end
@@ -44,7 +44,7 @@ defmodule PenteWeb.GamesChannel do
 		if (curTurn != socket.assigns.color ||
 				game["board"][row][col] != "" ||
 				game["winner"] != "") do
-			{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+			{:reply, {:ok, %{ "game" => Game.client_view(game, socket.assigns.color)}}, socket}
 
 		# Its our turn, make the move
 		else
@@ -58,9 +58,9 @@ defmodule PenteWeb.GamesChannel do
 			GameManager.updateGame(game, socket.assigns.name)
 
 			# Broadcast new state to channel
-			broadcast! socket, "new_state", %{"game" => Game.client_view(game), "s_game" => game}
+			broadcast! socket, "new_state", %{"game" => Game.client_view(game, socket.assigns.color), "s_game" => game}
 
-			{:reply, {:ok, %{ "game" => Game.client_view(game)}}, socket}
+			{:reply, {:ok, %{ "game" => Game.client_view(game, socket.assigns.color)}}, socket}
 		end
 	end
 
@@ -73,9 +73,9 @@ defmodule PenteWeb.GamesChannel do
 		GameManager.updateGame(newGame, socket.assigns.name)
 
 		# Broadcast new state
-		broadcast! socket, "new_state", %{"game" => Game.client_view(newGame), "s_game" => newGame}
+		broadcast! socket, "new_state", %{"game" => Game.client_view(newGame, socket.assigns.color), "s_game" => newGame}
 
-		{:reply, {:ok, %{ "game" => Game.client_view(newGame)}}, socket}
+		{:reply, {:ok, %{ "game" => Game.client_view(newGame, socket.assigns.color)}}, socket}
 	end
 
 	# Handle new_state broadcast from other clients
