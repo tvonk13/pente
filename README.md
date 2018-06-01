@@ -1,5 +1,9 @@
 # Pente
 
+Getting Started:
+  * Enter the name of an exisitng game or the name of a new game
+  * Once on the game page, you can make your move but the game will not progress unless there is another player
+  
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
